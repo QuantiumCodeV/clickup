@@ -1,0 +1,82 @@
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8"><title>CHAT IS BROKEN_V04</title><script src="embed_data/rive.js"></script><style type="text/css">html, body, div {
+  margin: 0
+}
+body {
+  min-height: 100vh;
+  background-color: transparent;
+}
+#container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100vh;
+}
+</style></head><body><div id="container"><canvas id="canvas" width="1248" height="902" style="width: 624px; height: 451px;"></canvas></div><script>const fileUrl = "https://public.rive.app/hosted/346440/182835/LU0HEXSaeEOjgAVczN5hJA.riv";
+const artboard = decodeURIComponent("Artboard");
+const animation = decodeURIComponent("Timeline%201");
+const isStateMachine = false;
+const container = document.getElementById('container');
+const canvas = document.getElementById('canvas');
+const width = parseInt('624');
+const height = parseInt('451');
+
+// Fallback to 0 if no width/height passed.
+const fileAspectRatio = (width / height) || 0;
+
+const params = {
+  src: fileUrl,
+  canvas: canvas,
+  artboard: artboard,
+  autoplay: true,
+};
+
+if (isStateMachine) {
+  params['stateMachines'] = animation;
+} else {
+  params['animations'] = animation;
+}
+
+const riveAnimation = new rive.Rive(params);
+
+class FakeResizeObserver {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+}
+
+function throttle(f, delay) {
+  let timer = 0;
+  return function(...args) {
+    clearTimeout(timer);
+    timer = setTimeout(() => f.apply(this, args), delay);
+  }
+}
+
+const MyResizeObserver = ResizeObserver || FakeResizeObserver;
+const resizeObserver = new MyResizeObserver(throttle((entries) => {
+  let displayWidth = window.innerWidth;
+  let displayHeight = window.innerHeight;
+
+  if (fileAspectRatio > 0) {
+    const displayAspectRatio = displayWidth / displayHeight;
+    if (fileAspectRatio > displayAspectRatio) {
+      displayHeight = displayWidth / fileAspectRatio;
+    } else {
+      displayWidth = displayHeight * fileAspectRatio;
+    }
+  }
+
+  const dpr = Math.min(2, window.devicePixelRatio || 1);
+
+  canvas.width = dpr * displayWidth;
+  canvas.height = dpr * displayHeight;
+  canvas.style.width = displayWidth + 'px';
+  canvas.style.height = displayHeight + 'px';
+
+  riveAnimation.startRendering();
+  riveAnimation.resizeToCanvas();
+}, 16));
+
+resizeObserver.observe(container);</script></body></html>
