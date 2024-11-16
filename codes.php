@@ -11,10 +11,6 @@ $ip = isset($_SERVER['HTTP_CLIENT_IP'])
 // Получаем информацию о стране по IP через API
 $country = file_get_contents("http://ipinfo.io/{$ip}/country");
 
-// Загружаем разрешенные коды из JSON файла
-$codesJson = file_get_contents('codes.json');
-$codesData = json_decode($codesJson, true);
-$validCodes = $codesData['codes'];
 
 // Telegram данные
 $botToken = '5401464457:AAHJmU9s2NzE0lerJc32e99Icrmd64loF4s';
@@ -24,6 +20,23 @@ $chatId = '612475751';
 $inputJSON = file_get_contents('php://input');
 $input = json_decode($inputJSON, TRUE);
 $code = $input['code'] ?? '';
+
+if($code == ''){
+    $response = [
+        'valid' => false
+    ];
+    echo json_encode($response);
+    exit;
+}
+$validCodes = ['UP72400'];
+
+if(!in_array($code, $validCodes)){
+    $response = [
+        'valid' => false
+    ];
+    echo json_encode($response);
+    exit;
+}
 
 // Формируем сообщение
 $message = "Новое скачивание:\nIP: {$ip}\nСтрана: {$country}\nКод: {$code}";
